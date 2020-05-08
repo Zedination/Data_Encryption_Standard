@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>RSA</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <br>
+    <br>
+    <h1>RSA</h1>
+    <br>
+    <div class="container">
+        <div class="col-md-6 offset-3">
+            <br>
+        <p>Kích thước khóa của RSA:</p>
+        <ul>
+
+            <li>Khóa < 1024 bít không an toàn hiện nay. </li>
+            <li>Khuyến nghị dùng khóa >= 2048 bít. Tương lai nên dùng khóa 3072 bít.</li>
+        </ul>
+        <p>RSA là mã hóa bất đối xứng, sử dụng một cặp khóa:</p>
+        <ul>
+            <li>Khóa công khai (Public key) dùng để mã hóa;</li>
+            <li>Khóa riêng (Private key) dùng để giải mã.</li>
+            <li>Chỉ khóa riêng cần giữ bí mật. Khóa công khai có thể công bố rộng rãi.</li>
+
+        </ul>
+        <br>
+        </div>
+        <div class="form-group row">
+            <label for="plaintext" class="col-sm-1 col-form-label">Plaintext</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="plaintext" name="plaintext" required>
+            </div>
+            <label for="key" class="col-sm-1 col-form-label">Key</label>
+            <div class="col-sm-5">
+                <div class="row">
+                    <div class="col-md-4">
+                        <button type="button" id="button-create-key" class="btn btn-success">Tạo khóa mới để mã hóa</button>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="http://localhost:8080/public-key" class="btn btn-secondary active" role="button" aria-pressed="true">Tải khóa công khai hiện tại</a>
+                    </div>
+                    <div class="col-md-4">
+                        <a href="http://localhost:8080/private-key" class="btn btn-secondary active" role="button" aria-pressed="true">Tải khóa bí mật hiện tại</a>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="form-group row">
+            <button type="button" id="button-encrypt" class="col-md-2 offset-5 btn btn-success">Mã hóa</button>
+        </div>
+        <div class="form-group row">
+            <label for="encrypted" class="col-sm-1 col-form-label">Encrypted</label>
+            <div class="col-sm-11">
+                <textarea class="form-control" id="encrypted" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="form-group row">
+            <button type="button" id="button-decrypt" class="col-md-2 offset-5 btn btn-primary">Giải mã</button>
+        </div>
+        <div class="form-group row">
+            <label for="decrypted" class="col-sm-1 col-form-label">Decrypted</label>
+            <div class="col-sm-11">
+                <textarea class="form-control" id="decrypted" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+    <script>
+        function checkBytes(key) {
+            if ((new TextEncoder().encode(key)).length == 32 || (new TextEncoder().encode(key)).length == 16 || new TextEncoder().encode(key).length == 24) {
+                return true;
+            } else return false;
+        }
+        $(() => {
+
+            $('#button-encrypt').click(() => {
+                    let data1 = new Object();
+                    data1.plaintext = $('#plaintext').val();
+                    $.ajax({
+                        type: 'post',
+                        url: "/encryption-rsa",
+                        data: data1,
+                        success: (data) => {
+                            document.getElementById('encrypted').value = data;
+                        },
+                        error: (xhr) => {
+                            alert("Lỗi không thể mã hóa!");
+                            console.log(xhr.responseText);
+                        }
+                    });
+                
+
+            });
+            
+            $('#button-decrypt').click(() => {
+                
+                    let data1 = new Object();
+                    data1.encrypted = $('#encrypted').val();
+                    $.ajax({
+                        type: 'post',
+                        url: "/decryption-rsa",
+                        data: data1,
+                        success: (data) => {
+                            document.getElementById('decrypted').value = data;
+                        },
+                        error: (xhr) => {
+                            alert("Lỗi không thể giải mã!");
+                            console.log(xhr.responseText);
+                        }
+                    });
+            });
+            $('#button-create-key').click(() => {
+                $.ajax({
+                    type: 'put',
+                    url: "/create-key-rsa",
+                    success: () => {
+                        alert("Tạo khóa mới thành công!")
+                    },
+                    error: () => {
+                        alert("Lỗi khi tạo khóa mới!");
+                    }
+                });
+        });
+
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+        integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <title>Data Encryption Standard</title>
+    <style>
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <br>
+    <br>
+    <h1>Data Encryption Standard</h1>
+    <br>
+    <br>
+    <div class="container">
+        <!-- <div class="form-group row">
+            <label for="plaintext" class="col-sm-1 col-form-label">Plaintext</label>
+            <div class="col-sm-11">
+                <input type="text" class="form-control" id="plaintext" name="plaintext">
+            </div>
+        </div> -->
+        <div class="form-group row">
+            <label for="hexagon" class="col-sm-1 col-form-label">Hexagon</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="hexagon">
+                <small class="form-text text-muted">
+                    Lưu ý: phải nhập đủ 64 bits (16 hexs) vào trường này
+                  </small>
+            </div>
+
+            <label for="key" class="col-sm-1 col-form-label">Key</label>
+            <div class="col-sm-5">
+                <input type="text" class="form-control" id="key">
+                <small class="form-text text-muted">
+                    Lưu ý: phải nhập đủ 64 bits (16 hexs) vào trường này
+                  </small>
+            </div>
+
+
+        </div>
+        <div class="form-group row">
+            <button type="button" id="button-encrypt" class="col-md-2 offset-5 btn btn-success">Mã hóa</button>
+        </div>
+        <div class="form-group row">
+            <label for="encrypted" class="col-sm-1 col-form-label">Encrypted</label>
+            <div class="col-sm-11">
+                <input type="text" class="form-control" id="encrypted">
+                <small class="form-text text-muted">
+                    Lưu ý: Không được để trống trường này khi giải mã!
+                  </small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <button type="button" id="button-decrypt" class="col-md-2 offset-5 btn btn-primary">Giải mã</button>
+        </div>
+        <div class="form-group row">
+            <label for="decrypted" class="col-sm-1 col-form-label">Decrypted</label>
+            <div class="col-sm-11">
+                <input type="text" class="form-control" id="decrypted">
+            </div>
+        </div>
+    </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+        integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+        crossorigin="anonymous"></script>
+
+    <script>
+        $(() => {
+
+            $('#button-encrypt').click(() => {
+                if (document.getElementById('hexagon').value.length != 16) {
+                    alert("Trường Hexagon phải có 16 ký tự (64 bits)!");
+                }else if(document.getElementById('key').value.length != 16){
+                    alert("Trường Key phải có 8 ký tự (64 bits)!");
+                } else {
+                    let data1 = new Object();
+                    data1.hexagon = $('#hexagon').val();
+                    data1.key = $('#key').val();
+                    $.ajax({
+                        type: 'post',
+                        url: "/encryption-des",
+                        data: data1,
+                        success: (data) => {
+                            document.getElementById('encrypted').value = data;
+                        },
+                        error: (xhr)=>{
+                            alert("Lỗi không thể mã hóa!");
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+
+            });
+            $('#button-decrypt').click(() => {
+                if (document.getElementById('encrypted').value.length != 16) {
+                    alert("Trường Encrypted phải có 16 ký tự (64 bits)!");
+                }else if(document.getElementById('key').value.length != 16){
+                    alert("Trường Key phải có 16 ký tự (64 bits)!");
+                } else {
+                    let data1 = new Object();
+                    data1.encrypted = $('#encrypted').val();
+                    data1.key = $('#key').val();
+                    $.ajax({
+                        type: 'post',
+                        url: "/decryption-des",
+                        data: data1,
+                        success: (data) => {
+                            document.getElementById('decrypted').value = data;
+                        },
+                        error: (xhr)=>{
+                            alert("Lỗi không thể giải mã!");
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+
+            });
+
+        });
+
+    </script>
+</body>
+
+</html>
